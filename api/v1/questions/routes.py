@@ -4,7 +4,7 @@ from flask_restful import Resource, Api,abort
 app = Flask(__name__)
 api = Api(app)
 
-#questions held in a dictionary
+#Questions held in a dictionary
 posts = [
 	{
 	  'question_id':101,
@@ -28,28 +28,31 @@ posts = [
 	}
 ]
 
+#Qnswers held in a dictionary
+answers = []
+
 #Get all questions
-@app.route('/api/v1/questions', methods = ['GET'])
+@app.route('/questions', methods = ['GET'])
 def get_questions():
 	#return all questions
 	return jsonify({'questions':posts}),200 #Success/Ok
 
 #Get a question
-@app.route('/api/v1/questions/<int:question_id>', methods = ['GET'])
-def get_question(question_id):
-	post = [post for post in posts if post['question_id'] == question_id]
+@app.route('/questions/<int:questionId>', methods = ['GET'])
+def get_question(questionId):
+	post = [post for post in posts if post['question_id'] == questionId]
 	if len(post) == 0:
 		abort(404) #Not found
 	#return a question
 	return jsonify({'questions':post[0]}),200 #Success/Ok
 
 #Post a question
-@app.route('/api/v1/questions', methods = ['POST'])
+@app.route('/questions', methods = ['POST'])
 def post_question():
 	if not request.json or not 'user_id' in request.json:
 		abort(400) #Bad request
 	question = {
-		'question_id':posts[-1]['question_id']+1,
+		'question_id':request.json['questionId'],
 		'user_id':request.json['user_id'],
 		'questions':request.json.get('questions',"")
 	}
@@ -57,5 +60,21 @@ def post_question():
 	#return all questions
 	return jsonify({'questions':posts}),201 #created
 
+#Post an answer to a question
+@app.route('/questions/<int:questionId>/answers', methods = ['POST'])
+def post_answer(questionId):
+	if not request.json or not 'answers' in request.json:
+		abort(400) #Bad request'''
+	post = [post for post in posts if post['question_id'] == questionId]
+	if len(post) == 0:
+		abort(404) #Not found
+	else:
+		answer = {
+			'question_id':questionId,
+			'answer':request.json.get('answers',"")
+			}
+	answers.append(answer)
+	return jsonify({"Answers":answers})
+		
 if __name__ == "__main__":
 	app.run(debug=True)
