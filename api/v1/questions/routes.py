@@ -64,7 +64,7 @@ def post_question():
 @app.route('/questions/<int:questionId>/answers', methods = ['POST'])
 def post_answer(questionId):
 	if not request.json or not 'answers' in request.json:
-		abort(400) #Bad request'''
+		abort(400) #Bad request
 	post = [post for post in posts if post['question_id'] == questionId]
 	if len(post) == 0:
 		abort(404) #Not found
@@ -74,7 +74,17 @@ def post_answer(questionId):
 			'answer':request.json.get('answers',"")
 			}
 	answers.append(answer)
-	return jsonify({"Answers":answers})
+	return jsonify({"Answers":answers}),200 #OK
 		
+#Delete a question
+@app.route('/questions/<int:questionId>', methods = ['DELETE'])
+def delete_question(questionId):
+	post = [post for post in posts if post['question_id'] == questionId]
+	if len(post) == 0:
+		abort(404) #Not found
+	posts.remove(post[0])
+	return jsonify({'Questions': posts}),200 #OK
+	return
+	
 if __name__ == "__main__":
 	app.run(debug=True)
